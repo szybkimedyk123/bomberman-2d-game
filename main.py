@@ -6,8 +6,8 @@ import xml.etree.ElementTree as ET
 import sqlite3
 import sys
 import random
-import images_rc
 import json
+import images_rc
 import objects
 
 
@@ -43,13 +43,13 @@ class Game(QGraphicsView):
         self.player_bomb_history = []
 
         if GAME_MODE == '2play':
-            self.player2 = objects.Player2(NUM_ROWS-2, NUM_COLS-2, CELL_SIZE)
+            self.player2 = objects.Player2(NUM_ROWS - 2, NUM_COLS - 2, CELL_SIZE)
             self.scene.addItem(self.player2)
             self.player2alive = True
         elif GAME_MODE == 'internet':
             print('internet')
             self.player_online = True
-            
+
         else:
             print('one player')
 
@@ -61,7 +61,8 @@ class Game(QGraphicsView):
 
         for x in range(1, NUM_ROWS - 1):
             for y in range(1, NUM_COLS - 1):
-                if not ((x == 1 and y == 2) or (x == 2 and y == 1) or (x == 1 and y == 1) or (x == (NUM_ROWS - 2) and y == (NUM_COLS - 2)) or
+                if not ((x == 1 and y == 2) or (x == 2 and y == 1) or (x == 1 and y == 1) or (
+                        x == (NUM_ROWS - 2) and y == (NUM_COLS - 2)) or
                         (x == (NUM_ROWS - 3) and y == (NUM_COLS - 2)) or (x == (NUM_ROWS - 2) and y == (NUM_COLS - 3))):
                     pair = (x, y)
                     if x % 2 == 0 and y % 2 == 0:
@@ -110,7 +111,6 @@ class Game(QGraphicsView):
         self.timer_player_pos = QTimer()
         self.timer_player_pos.timeout.connect(self.position_player)
         self.timer_player_pos.start(500)
-
 
     def add_explosion(self, bomb):
         row = bomb.row
@@ -161,7 +161,6 @@ class Game(QGraphicsView):
                         self.str.append(pair)
                         self.cords_explode.append(pair)
                         self.cords.append([i, j])
-
 
     def keyPressEvent(self, event):
         row = int(self.player.y() / CELL_SIZE)
@@ -228,7 +227,9 @@ class Game(QGraphicsView):
                 QTimer.singleShot(2500, lambda item=self.bomb: self.add_explosion(item))
                 QTimer.singleShot(2500, lambda: setattr(self, 'bomb_one', False))
 
-        if self.check_collision(self.player.x(), self.player.y(), self.player) or self.collision_bomb(self.player.x(), self.player.y(), self.player):
+        if self.check_collision(self.player.x(), self.player.y(), self.player) or self.collision_bomb(self.player.x(),
+                                                                                                      self.player.y(),
+                                                                                                      self.player):
             self.player.setPos(x_pos, y_pos)
 
         if self.player2alive:
@@ -296,33 +297,32 @@ class Game(QGraphicsView):
                     QTimer.singleShot(2500, lambda item=self.bomb2: self.add_explosion(item))
                     QTimer.singleShot(2500, lambda: setattr(self, 'bomb_two', False))
 
-            if self.check_collision(self.player2.x(), self.player2.y(), self.player2) or self.collision_bomb(self.player2.x(), self.player2.y(), self.player):
+            if self.check_collision(self.player2.x(), self.player2.y(), self.player2) or self.collision_bomb(
+                    self.player2.x(), self.player2.y(), self.player):
                 self.player2.setPos(x_pos2 - (NUM_ROWS - 3) * CELL_SIZE, y_pos2 - (NUM_COLS - 3) * CELL_SIZE)
-
 
     def position_player(self):
         row = int(self.player.y() / CELL_SIZE)
         col = int(self.player.x() / CELL_SIZE)
         pos = (col, row)
-        #print(pos)
+        # print(pos)
         self.player_move_history.append(pos)
 
         if self.player2alive:
             row2 = int(self.player2.y() / CELL_SIZE) + (NUM_ROWS - 3)
             col2 = int(self.player2.x() / CELL_SIZE) + (NUM_COLS - 3)
             pos2 = (col2, row2)
-            #print(pos2)
+            # print(pos2)
             self.player_move_history2.append(pos2)
-
 
     def check_collision(self, x, y, player):
         for brick in self.bricks:
-            if brick.collidesWithItem(player) and isinstance(brick, Brick) :
+            if brick.collidesWithItem(player) and isinstance(brick, objects.Brick):
                 return True
-            if brick.collidesWithItem(player) and (isinstance(brick, Brick1E) or isinstance(brick, Brick2E)):
+            if brick.collidesWithItem(player) and (
+                    isinstance(brick, objects.Brick1E) or isinstance(brick, objects.Brick2E)):
                 return True
         return False
-
 
     def collision_bomb(self, x, y, player):
         if bool(self.bombs_on_board):
@@ -336,7 +336,6 @@ class Game(QGraphicsView):
         if explosion.collidesWithItem(player):
             return True
 
-
     def if_die_from_enemy(self):
         for enemy in self.enemies:
             if enemy.collidesWithItem(self.player):
@@ -345,13 +344,11 @@ class Game(QGraphicsView):
                 if enemy.collidesWithItem(self.player2):
                     self.game_over()
 
-
     def enemy_dies(self, explosion):
         for enemy in self.enemies:
             if explosion.collidesWithItem(enemy):
                 return enemy
         return False
-
 
     def save_xml(self):
         gameplay = []
@@ -373,7 +370,6 @@ class Game(QGraphicsView):
         tree = ET.ElementTree(root)
         tree.write("gameplay.xml")
 
-
     def save_sqt(self):
         conn = sqlite3.connect('gameplay.db')
         cursor = conn.cursor()
@@ -390,9 +386,8 @@ class Game(QGraphicsView):
         conn.commit()
         conn.close()
 
-
     def game_over(self):
-        #for i in range (6):
+        # for i in range (6):
         #        print(self.enemies[i].enemy_history)
         reply = QMessageBox.question(self, "Game over", "Game over!", QMessageBox.Ok,
                                      QMessageBox.Ok)
@@ -402,7 +397,6 @@ class Game(QGraphicsView):
             if SQT:
                 self.save_sqt()
             QApplication.quit()
-
 
     def closeEvent(self, event):
         if XML:
@@ -484,7 +478,6 @@ class MenuDialog(QDialog):
         layout2.addWidget(self.choose_group)
         self.setLayout(layout2)
 
-
     def ok_clicked(self):
         if self.one_radio.isChecked():
             self.game_mode = '1play'
@@ -498,7 +491,7 @@ class MenuDialog(QDialog):
 
         if not bool(self.width_edit.text()) or not bool(self.height_edit.text()):
             QMessageBox.question(self, "Do it!", "Enter dimensions!", QMessageBox.Ok,
-                                         QMessageBox.Ok)
+                                 QMessageBox.Ok)
         else:
             self.width = int(self.width_edit.text())
             if self.width % 2 == 0:
@@ -515,8 +508,8 @@ class MenuDialog(QDialog):
                         'game mode': self.game_mode,
                         'width': self.width,
                         'height': self.height,
-                        'ip' : self.ip_address.text(),
-                        'mask' : self.mask.text(),
+                        'ip': self.ip_address.text(),
+                        'mask': self.mask.text(),
                         'xml': self.file_xml.isChecked(),
                         'sqlite3': self.file_sqt.isChecked()
                     }
@@ -554,7 +547,7 @@ class MenuDialog(QDialog):
                 self.mask = data['mask']
                 self.xml = data['xml']
                 self.sqt = data['sqlite3']
-                #print(self.ip_address)
+                # print(self.ip_address)
             self.accept()
             '''
             if self.game_mode == '1play':
@@ -576,7 +569,7 @@ class MenuDialog(QDialog):
     def get_game_mode(self):
         while not self.game_mode or not self.width or not self.height:
             self.exec_()
-        return self.game_mode, self.width, self.height, self.sqt , self.xml, self.ip, self.mask
+        return self.game_mode, self.width, self.height, self.sqt, self.xml, self.ip, self.mask
 
 
 if __name__ == '__main__':
