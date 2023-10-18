@@ -10,3 +10,6 @@ There is possibility to save four settings in .json file or history game in sql 
 To move player use keys on you keboard and to place bomb use SPACE. To move second player use "AWSD" keys and "E" to place bomb.<br />
 Be careful, game is over when hero touch the enemy or is in range of bomb. <br />
 The game is won when you destroy all enemies or find the exit.
+
+## Game
+![img.png](img.png)
